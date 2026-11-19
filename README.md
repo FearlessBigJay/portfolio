@@ -35,14 +35,33 @@ To add a project: add an entry to `projects` in `src/data/projects.js`, add `pub
 - `src/hooks/useSiteMotion.js` — section list, active-section tracking, scroll reveal
 - `netlify/functions/portfolio-ai.js` — serverless endpoint for the assistant
 
-## Portfolio assistant
+## BigJay AI (portfolio assistant)
 
-The floating assistant calls `/.netlify/functions/portfolio-ai`. To enable live answers on Netlify set:
+The chat calls `/.netlify/functions/portfolio-ai` (OpenAI Responses API, structured output: answer, suggested
+actions, follow-up questions). Set in Netlify environment variables:
 
-- `OPENAI_API_KEY`
+- `OPENAI_API_KEY` (required)
 - `OPENAI_MODEL` (optional, defaults to `gpt-4.1-mini`)
 
-Without the key, the assistant answers from the local site data.
+What it knows comes from `src/data/assistantKnowledge.js`, which pulls in the profile, resume details, every case
+study, testimonials and the FAQ. **To teach it something new, add a line to `extraFacts` in that file.** Without the
+API key (or if the call fails) the chat falls back to keyword search over the same knowledge.
+The function only accepts user/assistant messages, caps message length, rate-limits per IP, and only allows CORS
+from the site itself.
+
+## SEO and AI search
+
+- Pre-rendered HTML per page with title, description, canonical, Open Graph and JSON-LD (Person with aliases
+  BigJay/FearlessBigJay, WebSite, ProfilePage, FAQPage, CreativeWork, BreadcrumbList)
+- `sitemap.xml`, `llms.txt` and `llms-full.txt` are generated on every build
+- `robots.txt` allows search engines and AI crawlers; Google verification file and IndexNow key are in `public/`
+- After each deploy, run `npm run indexnow` to notify Bing/Copilot/ChatGPT Search, Yandex and others
+
+## Themes
+
+Six themes (BigJay Dark, BigJay Light, Forest, Ocean, Dusk, Sepia) plus "Match my device". Brand yellow is the
+accent in all of them. To add one: add it to `src/data/themes.js`, add a `[data-palette="<id>"]` block in
+`src/index.css` (check text contrast), and add its id to the scheme map in `index.html`'s pre-paint script.
 
 ## Motion and accessibility
 

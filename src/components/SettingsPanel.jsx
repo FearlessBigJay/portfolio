@@ -1,13 +1,9 @@
 import { useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { FaTimes, FaMoon, FaSun, FaDesktop, FaUndo } from "react-icons/fa";
+import { FaTimes, FaDesktop, FaUndo } from "react-icons/fa";
 import { TEXT_SIZES, useTheme } from "../context/ThemeContext";
-
-const themeOptions = [
-  { value: "dark", label: "Dark", icon: FaMoon },
-  { value: "light", label: "Light", icon: FaSun },
-  { value: "system", label: "System", icon: FaDesktop },
-];
+import { THEMES } from "../data/themes";
+import { centerOf } from "../hooks/useSiteMotion";
 
 const Switch = ({ id, label, hint, checked, onChange, disabled = false }) => (
   <div className="setting-row">
@@ -133,21 +129,43 @@ const SettingsPanel = () => {
 
             <fieldset className="setting-group">
               <legend>Theme</legend>
-              <div className="segmented">
-                {themeOptions.map(({ value, label, icon: Icon }) => (
-                  <label key={value}>
+              <div className="theme-grid">
+                {THEMES.map((option) => (
+                  <label key={option.id} className="theme-card">
                     <input
                       type="radio"
                       name="theme-mode"
-                      value={value}
-                      checked={themeMode === value}
-                      onChange={() => setThemeMode(value)}
+                      value={option.id}
+                      checked={themeMode === option.id}
+                      onChange={(event) => setThemeMode(option.id, centerOf(event.currentTarget.parentElement))}
                     />
-                    <span>
-                      <Icon aria-hidden="true" size={13} /> {label}
+                    <span className="theme-card-body">
+                      <span className="theme-preview" aria-hidden="true" style={{ background: option.swatch[0] }}>
+                        <i style={{ background: option.swatch[1] }} />
+                        <b style={{ background: option.swatch[2] }} />
+                        <b style={{ background: option.swatch[3] }} />
+                      </span>
+                      <span className="theme-name">{option.label}</span>
+                      <span className="theme-note">{option.note}</span>
                     </span>
                   </label>
                 ))}
+                <label className="theme-card theme-card-wide">
+                  <input
+                    type="radio"
+                    name="theme-mode"
+                    value="system"
+                    checked={themeMode === "system"}
+                    onChange={(event) => setThemeMode("system", centerOf(event.currentTarget.parentElement))}
+                  />
+                  <span className="theme-card-body theme-card-row">
+                    <FaDesktop aria-hidden="true" />
+                    <span>
+                      <span className="theme-name">Match my device</span>
+                      <span className="theme-note">BigJay Dark or Light, following your system setting</span>
+                    </span>
+                  </span>
+                </label>
               </div>
             </fieldset>
 

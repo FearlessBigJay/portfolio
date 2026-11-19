@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="dark" data-palette="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -36,9 +36,14 @@
         var get = function (k) {
           try { return localStorage.getItem("portfolio-" + k); } catch (e) { return null; }
         };
+        // Theme id -> light/dark scheme. Keep in sync with src/data/themes.js.
+        var schemes = { dark: "dark", light: "light", forest: "dark", ocean: "dark", dusk: "dark", sepia: "light" };
         var t = get("theme");
         if (t === "system") t = matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
-        if (t === "light" || t === "dark") d.setAttribute("data-theme", t);
+        if (schemes[t]) {
+          d.setAttribute("data-theme", schemes[t]);
+          d.setAttribute("data-palette", t);
+        }
         var s = get("textSize");
         if (s) d.setAttribute("data-text", s);
         if (get("highContrast") === "true") d.setAttribute("data-contrast", "high");
@@ -46,6 +51,12 @@
         if (get("readableFont") === "true") d.classList.add("readable-font");
         var reduce = get("reducedMotion") === "true" || matchMedia("(prefers-reduced-motion: reduce)").matches;
         d.classList.add(reduce ? "reduced-motion" : "motion-ok");
+        // Page-to-page transitions are CSS-driven; also honour the in-page "Reduce motion" setting.
+        var skip = function (e) {
+          if (d.classList.contains("reduced-motion") && e.viewTransition) e.viewTransition.skipTransition();
+        };
+        addEventListener("pageswap", skip);
+        addEventListener("pagereveal", skip);
       } catch (e) {}
     </script>
   </head>

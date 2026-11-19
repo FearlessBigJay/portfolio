@@ -64,4 +64,37 @@ ${routePaths
 `;
 write("sitemap.xml", sitemap);
 
+// llms.txt: a short, link-rich summary for AI assistants and answer engines
+// (llmstxt.org); llms-full.txt: the same knowledge base the BigJay AI uses.
+const { knowledgeText } = await import(pathToFileURL(path.join(root, "src/data/assistantKnowledge.js")).href);
+const { projects, projectPath } = await import(pathToFileURL(path.join(root, "src/data/projects.js")).href);
+const { faqs } = await import(pathToFileURL(path.join(root, "src/data/faq.js")).href);
+const p = portfolioProfile;
+write(
+  "llms.txt",
+  `# BigJay (FearlessBigJay): ${p.name}
+
+> BigJay, also known as FearlessBigJay, is ${p.name}, a full-stack software engineer based in Owerri, Imo State, Nigeria. He builds web products with React, TypeScript, and Node.js, including AI-enabled applications. ${p.availability}.
+
+Official website: ${site}/ . The same person uses the handle FearlessBigJay on GitHub (${p.links.github}) and LinkedIn (${p.links.linkedin}).
+
+## Case studies
+
+${projects.map((pr) => `- [${pr.title}](${site}${projectPath(pr)}): ${pr.tagline} ${pr.card.built}`).join("\n")}
+
+## About
+
+${faqs.map((f) => `- **${f.q}** ${f.a}`).join("\n")}
+
+## Links
+
+- [Home and contact](${site}/)
+- [Resume (PDF)](${site}${p.resume})
+- [Full profile for AI assistants](${site}/llms-full.txt)
+- [GitHub](${p.links.github})
+- [LinkedIn](${p.links.linkedin})
+`,
+);
+write("llms-full.txt", `# BigJay (FearlessBigJay): full profile\n\nSource: ${site}/\n\n${knowledgeText}\n`);
+
 fs.rmSync(ssrDir, { recursive: true, force: true });

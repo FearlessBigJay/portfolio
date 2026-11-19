@@ -7,6 +7,7 @@ export const sections = [
   { id: "skills", label: "Stack", nav: "Stack" },
   { id: "experience", label: "Experience", nav: "Experience" },
   { id: "testimonials", label: "Notes", nav: false },
+  { id: "faq", label: "FAQ", nav: false },
   { id: "contact", label: "Contact", nav: "Contact" },
 ];
 
@@ -122,6 +123,13 @@ export function useSpotlight() {
     };
   }, []);
 }
+
+/** Centre of an element in viewport coordinates (origin for the theme reveal). */
+export const centerOf = (element) => {
+  if (!element) return undefined;
+  const rect = element.getBoundingClientRect();
+  return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+};
 
 /** Fine pointer (mouse/trackpad) that can hover: the only case where we add pointer effects. */
 export const hasFinePointer = () =>

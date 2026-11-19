@@ -101,8 +101,8 @@ export const portfolioProfile = {
 
 export const portfolioStarterPrompts = [
   "Who is BigJay?",
-  "What has he built?",
-  "What stack does he use?",
+  "Which project shows his best work?",
+  "Is he a good fit for a React role?",
   "How can I contact him?",
 ];
 

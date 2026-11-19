@@ -63,7 +63,7 @@ const Contact = () => {
         <div>
           <SectionHeading
             id="contact-heading"
-            index="06"
+            index="07"
             eyebrow="Contact"
             title="Tell me what you want to build."
             className="!mb-8"

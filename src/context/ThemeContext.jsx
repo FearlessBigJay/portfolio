@@ -1,4 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { flushSync } from "react-dom";
+import { THEMES, findTheme } from "../data/themes";
 
 const ThemeContext = createContext(null);
 
@@ -33,7 +35,21 @@ export const TEXT_SIZES = [
   { value: "xl", label: "Extra large" },
 ];
 
-const THEME_MODES = ["dark", "light", "system"];
+const THEME_MODES = [...THEMES.map((t) => t.id), "system"];
+
+/** Resolves a saved mode ("forest", "system", ...) to a concrete theme. */
+const resolveTheme = (mode, systemDark) =>
+  findTheme(mode === "system" ? (systemDark ? "dark" : "light") : mode) || THEMES[0];
+
+/** Writes theme attributes on <html> and the browser UI colour. */
+const applyThemeAttrs = (resolved) => {
+  const root = document.documentElement;
+  root.setAttribute("data-theme", resolved.scheme);
+  root.setAttribute("data-palette", resolved.id);
+  document
+    .querySelectorAll('meta[name="theme-color"]')
+    .forEach((meta) => meta.setAttribute("content", resolved.metaColor));
+};
 
 const readChoice = (key, allowed, fallback) => {
   const saved = read(key);
@@ -86,12 +102,13 @@ export const ThemeProvider = ({ children }) => {
   const systemDark = useMedia("(prefers-color-scheme: dark)");
   const systemReducedMotion = useMedia("(prefers-reduced-motion: reduce)");
 
-  const theme = themeMode === "system" ? (systemDark ? "dark" : "light") : themeMode;
+  const resolved = resolveTheme(themeMode, systemDark);
+  const theme = resolved.scheme;
   const reducedMotion = manualReducedMotion || systemReducedMotion;
 
   useEffect(() => {
     const root = document.documentElement;
-    root.setAttribute("data-theme", theme);
+    applyThemeAttrs(resolved);
     root.setAttribute("data-text", textSize);
     root.setAttribute("data-contrast", highContrast ? "high" : "normal");
     root.classList.toggle("readable-font", readableFont);
@@ -106,7 +123,27 @@ export const ThemeProvider = ({ children }) => {
     write("portfolio-readableFont", String(readableFont));
     write("portfolio-underlineLinks", String(underlineLinks));
     write("portfolio-reducedMotion", String(manualReducedMotion));
-  }, [theme, themeMode, textSize, highContrast, readableFont, underlineLinks, reducedMotion, manualReducedMotion]);
+  }, [resolved, themeMode, textSize, highContrast, readableFont, underlineLinks, reducedMotion, manualReducedMotion]);
+
+  /**
+   * Switches theme with a circular reveal from `origin` (the click point) where the
+   * View Transitions API exists and motion is allowed; otherwise switches instantly.
+   */
+  const changeTheme = (mode, origin) => {
+    const root = document.documentElement;
+    if (!document.startViewTransition || reducedMotion) {
+      setThemeMode(mode);
+      return;
+    }
+    root.style.setProperty("--vt-x", `${origin?.x ?? window.innerWidth / 2}px`);
+    root.style.setProperty("--vt-y", `${origin?.y ?? 0}px`);
+    root.classList.add("theme-vt");
+    const transition = document.startViewTransition(() => {
+      applyThemeAttrs(resolveTheme(mode, systemDark));
+      flushSync(() => setThemeMode(mode));
+    });
+    transition.finished.finally(() => root.classList.remove("theme-vt"));
+  };
 
   const resetSettings = () => {
     setThemeMode("dark");
@@ -119,9 +156,10 @@ export const ThemeProvider = ({ children }) => {
 
   const value = {
     theme,
+    palette: resolved.id,
     themeMode,
-    setThemeMode,
-    toggleTheme: () => setThemeMode(theme === "dark" ? "light" : "dark"),
+    setThemeMode: changeTheme,
+    toggleTheme: (origin) => changeTheme(theme === "dark" ? "light" : "dark", origin),
     textSize,
     setTextSize,
     highContrast,

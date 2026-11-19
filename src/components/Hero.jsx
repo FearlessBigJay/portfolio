@@ -2,6 +2,7 @@ import { Fragment } from "react";
 import { FaArrowRight, FaGithub, FaLinkedin, FaFileAlt } from "react-icons/fa";
 import { portfolioProfile } from "../data/portfolioProfile";
 import HeroNetwork from "./HeroNetwork";
+import HeroParticles from "./HeroParticles";
 import Magnetic from "./Magnetic";
 
 // Entrance animations are pure CSS (see .rise / .word-in in index.css) so the
@@ -23,6 +24,7 @@ const Hero = () => {
   return (
     <section id="hero" className="hero" aria-labelledby="hero-title">
       <div className="hero-glow" aria-hidden="true" />
+      <HeroParticles />
       <div className="wrap grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-14 lg:gap-10 items-center">
         <div>
           <p className="brand-pill rise" style={{ "--d": "0s" }}>
@@ -31,15 +33,15 @@ const Hero = () => {
             <span className="faint">@{portfolioProfile.handle}</span>
           </p>
 
-          <p className="text-lg md:text-xl font-medium m-0 mb-5 rise" style={{ "--d": "0.08s" }}>
-            Hi, I&apos;m <span style={{ color: "var(--signal)" }}>{portfolioProfile.name}</span>
-            <span className="muted">
-              , known as <strong style={{ color: "var(--text)" }}>{portfolioProfile.brand}</strong>, based in{" "}
-              {portfolioProfile.location}.
-            </span>
-          </p>
-
+          {/* The h1 carries the name and brand (what people search for); the intro line keeps its body-text look. */}
           <h1 id="hero-title" className="hero-title">
+            <span className="hero-intro rise" style={{ "--d": "0.08s" }}>
+              Hi, I&apos;m <span style={{ color: "var(--signal)" }}>{portfolioProfile.name}</span>
+              <span className="muted">
+                , known as <strong style={{ color: "var(--text)" }}>{portfolioProfile.brand}</strong>, based in{" "}
+                {portfolioProfile.location}.
+              </span>
+            </span>{" "}
             <span className="role">
               <Words text="Full-Stack Software Engineer" start={0.15} />
             </span>{" "}

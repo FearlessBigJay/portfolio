@@ -7,6 +7,7 @@ import Footer from "./components/Footer";
 import SignalGuide from "./components/SignalGuide";
 import PortfolioAI from "./components/PortfolioAI";
 import SettingsPanel from "./components/SettingsPanel";
+import CommandPalette from "./components/CommandPalette";
 import HomePage from "./pages/HomePage";
 import ProjectPage from "./pages/ProjectPage";
 import NotFoundPage from "./pages/NotFoundPage";
@@ -32,6 +33,7 @@ const Site = ({ route }) => {
       {onHome && <SignalGuide />}
       <PortfolioAI />
       <SettingsPanel />
+      <CommandPalette />
     </MotionConfig>
   );
 };

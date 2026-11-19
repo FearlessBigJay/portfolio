@@ -3,6 +3,7 @@
 import { brand, education, experience, portfolioProfile } from "./data/portfolioProfile.js";
 import { projectPath, projects } from "./data/projects.js";
 import { resolveRoute } from "./routes.js";
+import { faqs } from "./data/faq.js";
 
 const SITE = portfolioProfile.site.replace(/\/$/, "");
 const abs = (path) => (/^https?:/.test(path) ? path : `${SITE}${path}`);
@@ -43,7 +44,24 @@ const person = {
     "AI integration",
     "REST API design",
   ],
-  address: { "@type": "PostalAddress", addressRegion: "Imo State", addressCountry: "NG" },
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Owerri",
+    addressRegion: "Imo State",
+    addressCountry: "NG",
+  },
+  homeLocation: { "@type": "Place", name: "Owerri, Imo State, Nigeria" },
+  nationality: { "@type": "Country", name: "Nigeria" },
+  knowsLanguage: "en",
+  email: `mailto:${portfolioProfile.email}`,
+  hasOccupation: {
+    "@type": "Occupation",
+    name: "Full-Stack Software Engineer",
+    occupationLocation: { "@type": "Country", name: "Nigeria" },
+    skills:
+      "React, TypeScript, JavaScript, Node.js, Express, PostgreSQL, MongoDB, Supabase, Tailwind CSS, AI integration",
+  },
+  mainEntityOfPage: `${SITE}/`,
   sameAs,
 };
 
@@ -85,6 +103,15 @@ function homeSeo() {
           mainEntity: { "@id": PERSON_ID },
           about: { "@id": PERSON_ID },
           hasPart: projects.map((p) => ({ "@id": `${SITE}${projectPath(p)}#work` })),
+        },
+        {
+          "@type": "FAQPage",
+          "@id": `${SITE}/#faq`,
+          mainEntity: faqs.map((f) => ({
+            "@type": "Question",
+            name: f.q,
+            acceptedAnswer: { "@type": "Answer", text: f.a },
+          })),
         },
         {
           "@type": "ItemList",

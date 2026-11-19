@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { FaBars, FaTimes, FaMoon, FaSun, FaFileAlt, FaCog } from "react-icons/fa";
+import { FaBars, FaTimes, FaMoon, FaSun, FaFileAlt, FaCog, FaSearch } from "react-icons/fa";
+import { OPEN_PALETTE_EVENT } from "../events";
 import { motion, useScroll, useSpring } from "framer-motion";
 import { useTheme } from "../context/ThemeContext";
 import { portfolioProfile } from "../data/portfolioProfile";
-import { sections, useActiveSection, useHydrated, useScrolledPast } from "../hooks/useSiteMotion";
+import { centerOf, sections, useActiveSection, useHydrated, useScrolledPast } from "../hooks/useSiteMotion";
 
 const navLinks = sections.filter((s) => s.nav);
 
@@ -20,7 +21,19 @@ export const DisplayControls = ({ showTheme = true, showSettings = true }) => {
         <button
           type="button"
           className="icon-btn"
-          onClick={toggleTheme}
+          onClick={() => window.dispatchEvent(new Event(OPEN_PALETTE_EVENT))}
+          aria-haspopup="dialog"
+          aria-label="Quick menu: search pages, case studies and themes (Ctrl K)"
+          title="Quick menu (Ctrl K)"
+        >
+          <FaSearch aria-hidden="true" />
+        </button>
+      )}
+      {showTheme && (
+        <button
+          type="button"
+          className="icon-btn"
+          onClick={(event) => toggleTheme(centerOf(event.currentTarget))}
           aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
           title={isDark ? "Light theme" : "Dark theme"}
         >
