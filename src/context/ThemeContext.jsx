@@ -1,183 +1,143 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useEffect, useState } from "react";
 
-const ThemeContext = createContext();
+const ThemeContext = createContext(null);
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useTheme = () => {
   const context = useContext(ThemeContext);
-  if (!context) {
-    throw new Error('useTheme must be used within a ThemeProvider');
-  }
+  if (!context) throw new Error("useTheme must be used within a ThemeProvider");
   return context;
 };
 
-export const themes = {
-  dark: {
-    name: 'Midnight Tide',
-    colors: {
-      primary: '#67e8f9',
-      secondary: '#14b8a6',
-      accent: '#f59e0b',
-      background: '#0b1020',
-      surface: '#111933',
-      text: '#f8fafc',
-      textSecondary: '#c7d2fe'
-    }
-  },
-  light: {
-    name: 'Porcelain',
-    colors: {
-      primary: '#0f766e',
-      secondary: '#2563eb',
-      accent: '#ea580c',
-      background: '#f8fafc',
-      surface: '#eef2ff',
-      text: '#0f172a',
-      textSecondary: '#475569'
-    }
-  },
-  cyberpunk: {
-    name: 'Neon Pulse',
-    colors: {
-      primary: '#ff0080',
-      secondary: '#00ffff',
-      accent: '#ffff00',
-      background: '#0a0a0a',
-      surface: '#1a0d1a',
-      text: '#ffffff',
-      textSecondary: '#ff0080'
-    }
-  },
-  ocean: {
-    name: 'Atlantic',
-    colors: {
-      primary: '#38bdf8',
-      secondary: '#0ea5e9',
-      accent: '#2dd4bf',
-      background: '#082f49',
-      surface: '#0c4a6e',
-      text: '#f0f9ff',
-      textSecondary: '#bae6fd'
-    }
-  },
-  forest: {
-    name: 'Canopy',
-    colors: {
-      primary: '#22c55e',
-      secondary: '#16a34a',
-      accent: '#eab308',
-      background: '#052e16',
-      surface: '#14532d',
-      text: '#f0fdf4',
-      textSecondary: '#bbf7d0'
-    }
+const read = (key) => {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
   }
 };
 
+const write = (key, value) => {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    /* storage unavailable: preference just won't persist */
+  }
+};
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const TEXT_SIZES = [
+  { value: "sm", label: "Small" },
+  { value: "md", label: "Default" },
+  { value: "lg", label: "Large" },
+  { value: "xl", label: "Extra large" },
+];
+
+const THEME_MODES = ["dark", "light", "system"];
+
+const readChoice = (key, allowed, fallback) => {
+  const saved = read(key);
+  return allowed.includes(saved) ? saved : fallback;
+};
+
+const readFlag = (key) => read(key) === "true";
+
+const media = (query) => (typeof window !== "undefined" ? window.matchMedia(query) : null);
+
+/** Subscribes to a media query and returns whether it currently matches. */
+const useMedia = (query) => {
+  const [matches, setMatches] = useState(() => Boolean(media(query)?.matches));
+  useEffect(() => {
+    const list = media(query);
+    const apply = () => setMatches(list.matches);
+    list.addEventListener("change", apply);
+    return () => list.removeEventListener("change", apply);
+  }, [query]);
+  return matches;
+};
+
+const READABLE_FONT_HREF =
+  "https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap";
+
+const loadReadableFont = () => {
+  if (document.getElementById("readable-font")) return;
+  const link = document.createElement("link");
+  link.id = "readable-font";
+  link.rel = "stylesheet";
+  link.href = READABLE_FONT_HREF;
+  document.head.appendChild(link);
+};
+
 export const ThemeProvider = ({ children }) => {
-  const [currentTheme, setCurrentTheme] = useState('dark');
-  const [fontSize, setFontSize] = useState('normal');
-  const [highContrast, setHighContrast] = useState(false);
-  const [reducedMotion, setReducedMotion] = useState(false);
-  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [themeMode, setThemeMode] = useState(() => readChoice("portfolio-theme", THEME_MODES, "dark"));
+  const [textSize, setTextSize] = useState(() =>
+    readChoice(
+      "portfolio-textSize",
+      TEXT_SIZES.map((s) => s.value),
+      "md",
+    ),
+  );
+  const [highContrast, setHighContrast] = useState(() => readFlag("portfolio-highContrast"));
+  const [readableFont, setReadableFont] = useState(() => readFlag("portfolio-readableFont"));
+  const [underlineLinks, setUnderlineLinks] = useState(() => readFlag("portfolio-underlineLinks"));
+  const [manualReducedMotion, setManualReducedMotion] = useState(() => readFlag("portfolio-reducedMotion"));
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
-  // Load saved preferences
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('portfolio-theme');
-    const savedFontSize = localStorage.getItem('portfolio-fontSize');
-    const savedHighContrast = localStorage.getItem('portfolio-highContrast');
-    const savedReducedMotion = localStorage.getItem('portfolio-reducedMotion');
+  const systemDark = useMedia("(prefers-color-scheme: dark)");
+  const systemReducedMotion = useMedia("(prefers-reduced-motion: reduce)");
 
-    if (savedTheme && themes[savedTheme]) {
-      setCurrentTheme(savedTheme);
-    }
-    if (savedFontSize) {
-      setFontSize(savedFontSize);
-    }
-    if (savedHighContrast) {
-      setHighContrast(savedHighContrast === 'true');
-    }
-    if (savedReducedMotion) {
-      setReducedMotion(savedReducedMotion === 'true');
-    }
-  }, []);
+  const theme = themeMode === "system" ? (systemDark ? "dark" : "light") : themeMode;
+  const reducedMotion = manualReducedMotion || systemReducedMotion;
 
-  // Apply theme to document
-  useEffect(() => {
-    const theme = themes[currentTheme];
-    const root = document.documentElement;
-    setIsTransitioning(true);
-    root.setAttribute('data-theme-transitioning', 'true');
-    const transitionTimeout = window.setTimeout(() => {
-      setIsTransitioning(false);
-      root.removeAttribute('data-theme-transitioning');
-    }, 220);
-    
-    // Set CSS custom properties
-    Object.entries(theme.colors).forEach(([key, value]) => {
-      root.style.setProperty(`--color-${key}`, value);
-    });
-
-    // Set theme class
-    root.setAttribute('data-theme', currentTheme);
-    
-    // Save to localStorage
-    localStorage.setItem('portfolio-theme', currentTheme);
-
-    return () => {
-      window.clearTimeout(transitionTimeout);
-    };
-  }, [currentTheme]);
-
-  // Apply accessibility settings
   useEffect(() => {
     const root = document.documentElement;
-    
-    // Font size
-    const fontSizeMap = {
-      small: '14px',
-      normal: '16px',
-      large: '18px',
-      xlarge: '20px'
-    };
-    root.style.setProperty('--base-font-size', fontSizeMap[fontSize]);
-    
-    // High contrast
-    if (highContrast) {
-      root.classList.add('high-contrast');
-    } else {
-      root.classList.remove('high-contrast');
-    }
-    
-    // Reduced motion
-    if (reducedMotion) {
-      root.classList.add('reduced-motion');
-    } else {
-      root.classList.remove('reduced-motion');
-    }
-    
-    // Save preferences
-    localStorage.setItem('portfolio-fontSize', fontSize);
-    localStorage.setItem('portfolio-highContrast', highContrast.toString());
-    localStorage.setItem('portfolio-reducedMotion', reducedMotion.toString());
-  }, [fontSize, highContrast, reducedMotion]);
+    root.setAttribute("data-theme", theme);
+    root.setAttribute("data-text", textSize);
+    root.setAttribute("data-contrast", highContrast ? "high" : "normal");
+    root.classList.toggle("readable-font", readableFont);
+    root.classList.toggle("underline-links", underlineLinks);
+    root.classList.toggle("reduced-motion", reducedMotion);
+    root.classList.toggle("motion-ok", !reducedMotion);
+    if (readableFont) loadReadableFont();
 
-  const value = {
-    currentTheme,
-    setCurrentTheme,
-    themes,
-    fontSize,
-    setFontSize,
-    highContrast,
-    setHighContrast,
-    reducedMotion,
-    isTransitioning,
-    setReducedMotion,
-    theme: themes[currentTheme]
+    write("portfolio-theme", themeMode);
+    write("portfolio-textSize", textSize);
+    write("portfolio-highContrast", String(highContrast));
+    write("portfolio-readableFont", String(readableFont));
+    write("portfolio-underlineLinks", String(underlineLinks));
+    write("portfolio-reducedMotion", String(manualReducedMotion));
+  }, [theme, themeMode, textSize, highContrast, readableFont, underlineLinks, reducedMotion, manualReducedMotion]);
+
+  const resetSettings = () => {
+    setThemeMode("dark");
+    setTextSize("md");
+    setHighContrast(false);
+    setReadableFont(false);
+    setUnderlineLinks(false);
+    setManualReducedMotion(false);
   };
 
-  return (
-    <ThemeContext.Provider value={value}>
-      {children}
-    </ThemeContext.Provider>
-  );
+  const value = {
+    theme,
+    themeMode,
+    setThemeMode,
+    toggleTheme: () => setThemeMode(theme === "dark" ? "light" : "dark"),
+    textSize,
+    setTextSize,
+    highContrast,
+    setHighContrast,
+    readableFont,
+    setReadableFont,
+    underlineLinks,
+    setUnderlineLinks,
+    reducedMotion,
+    systemReducedMotion,
+    manualReducedMotion,
+    setManualReducedMotion,
+    resetSettings,
+    settingsOpen,
+    setSettingsOpen,
+  };
+
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 };

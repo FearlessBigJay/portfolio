@@ -1,325 +1,167 @@
-import React, { useState } from "react";
-import { FaEnvelope, FaGithub, FaLinkedin, FaWhatsapp, FaMapMarkerAlt, FaPhone } from "react-icons/fa";
-import { motion } from "framer-motion";
-import { useTheme } from "../context/ThemeContext";
+import { useState } from "react";
+import { FaEnvelope, FaGithub, FaLinkedin, FaWhatsapp, FaCopy, FaCheck } from "react-icons/fa";
+import SectionHeading from "./SectionHeading";
+import { portfolioProfile } from "../data/portfolioProfile";
+
+const FORM_ENDPOINT = "https://formspree.io/f/xnnplpjz";
+
+const channels = [
+  { icon: FaEnvelope, label: "Email", value: portfolioProfile.email, href: `mailto:${portfolioProfile.email}` },
+  {
+    icon: FaWhatsapp,
+    label: "WhatsApp",
+    value: portfolioProfile.phone,
+    href: portfolioProfile.links.whatsapp,
+    external: true,
+  },
+  {
+    icon: FaLinkedin,
+    label: "LinkedIn",
+    value: "in/fearlessbigjay",
+    href: portfolioProfile.links.linkedin,
+    external: true,
+  },
+  { icon: FaGithub, label: "GitHub", value: "FearlessBigJay", href: portfolioProfile.links.github, external: true },
+];
 
 const Contact = () => {
-  const { theme } = useTheme();
-  const [submitted, setSubmitted] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [status, setStatus] = useState("idle"); // idle | sending | sent | error
+  const [copied, setCopied] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    const form = e.target;
-
-    const formData = new FormData(form);
-    
+  const copyEmail = async () => {
     try {
-      const response = await fetch("https://formspree.io/f/xnnplpjz", {
-        method: "POST",
-        body: formData,
-        headers: {
-          Accept: "application/json",
-        },
-      });
-
-      if (response.ok) {
-        setSubmitted(true);
-        form.reset();
-        setTimeout(() => setSubmitted(false), 5000);
-      }
-    } catch (error) {
-      console.error("Form submission error:", error);
-    } finally {
-      setIsLoading(false);
+      await navigator.clipboard.writeText(portfolioProfile.email);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2500);
+    } catch {
+      window.location.href = `mailto:${portfolioProfile.email}`;
     }
   };
 
-  const contactInfo = [
-    {
-      icon: <FaMapMarkerAlt style={{ color: theme.colors.primary }} />,
-      label: "Location",
-      value: "Nigeria"
-    },
-    {
-      icon: <FaEnvelope style={{ color: theme.colors.primary }} />,
-      label: "Email",
-      value: "jahswill4jahs@gmail.com"
-    },
-    {
-      icon: <FaPhone style={{ color: theme.colors.primary }} />,
-      label: "Phone",
-      value: "+234 901 651 0703"
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    setStatus("sending");
+    try {
+      const response = await fetch(FORM_ENDPOINT, {
+        method: "POST",
+        body: new FormData(form),
+        headers: { Accept: "application/json" },
+      });
+      if (!response.ok) throw new Error(`Form request failed: ${response.status}`);
+      form.reset();
+      setStatus("sent");
+    } catch (error) {
+      console.error(error);
+      setStatus("error");
     }
-  ];
-
-  const socialLinks = [
-    { icon: <FaGithub size={24} />, href: "https://github.com/jayzwillz", label: "GitHub" },
-    { icon: <FaLinkedin size={24} />, href: "https://linkedin.com/in/jayzwillz", label: "LinkedIn" },
-    { icon: <FaWhatsapp size={24} />, href: "https://wa.me/2349016510703", label: "WhatsApp" },
-    { icon: <FaEnvelope size={24} />, href: "mailto:jahswill4jahs@gmail.com", label: "Email" }
-  ];
+  };
 
   return (
-    <motion.section
-      id="contact"
-      className="py-20 relative overflow-hidden"
-      style={{ backgroundColor: theme.colors.background }}
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      transition={{ duration: 0.8 }}
-      viewport={{ once: true }}
-    >
-      {/* Background decoration */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-1/4 right-0 w-96 h-96 rounded-full"
-             style={{ background: `radial-gradient(circle, ${theme.colors.primary}, transparent)` }} />
-        <div className="absolute bottom-1/4 left-0 w-80 h-80 rounded-full"
-             style={{ background: `radial-gradient(circle, ${theme.colors.accent}, transparent)` }} />
-      </div>
+    <section id="contact" className="section" aria-labelledby="contact-heading">
+      <div className="wrap grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-10 lg:gap-16">
+        <div>
+          <SectionHeading
+            id="contact-heading"
+            index="06"
+            eyebrow="Contact"
+            title="Tell me what you want to build."
+            className="!mb-8"
+          >
+            A role, a product idea, or a collaboration. I read every message, and email or WhatsApp is the fastest way
+            to reach me.
+          </SectionHeading>
 
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
-        {/* Section Header */}
-        <motion.div
-          className="text-center mb-16"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ color: theme.colors.text }}>
-            Let's Work <span style={{ color: theme.colors.primary }}>Together</span>
-          </h2>
-          <p className="text-lg max-w-2xl mx-auto" style={{ color: theme.colors.textSecondary }}>
-            Have a project in mind? I'd love to hear about it. Drop me a line and let's create something amazing together.
+          <p className="status mb-6">
+            <span className="status-dot" aria-hidden="true" />
+            {portfolioProfile.availability} · {portfolioProfile.location}
           </p>
-        </motion.div>
 
-        <div className="grid lg:grid-cols-2 gap-12">
-          {/* Contact Information */}
-          <motion.div
-            className="space-y-8"
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            <div>
-              <h3 className="text-2xl font-bold mb-6" style={{ color: theme.colors.text }}>
-                Get In Touch
-              </h3>
-              <p className="text-lg mb-8" style={{ color: theme.colors.textSecondary }}>
-                I'm always open to discussing new opportunities, creative ideas or 
-                partnerships. Whether you have a project in mind or just want to say hello, 
-                I'd love to hear from you.
-              </p>
-
-              {/* Contact Info Cards */}
-              <div className="space-y-4">
-                {contactInfo.map((info, index) => (
-                  <motion.div
-                    key={index}
-                    className="flex items-center gap-4 p-4 rounded-lg transition-all duration-300"
-                    style={{ 
-                      backgroundColor: theme.colors.surface,
-                      border: `1px solid ${theme.colors.primary}20`
-                    }}
-                    whileHover={{ 
-                      scale: 1.02,
-                      boxShadow: `0 8px 25px ${theme.colors.primary}20`
-                    }}
-                  >
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center"
-                         style={{ backgroundColor: `${theme.colors.primary}20` }}>
-                      {info.icon}
-                    </div>
-                    <div>
-                      <p className="font-medium" style={{ color: theme.colors.text }}>{info.label}</p>
-                      <p style={{ color: theme.colors.textSecondary }}>{info.value}</p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-
-              {/* Social Links */}
-              <div className="mt-8">
-                <h4 className="text-lg font-semibold mb-4" style={{ color: theme.colors.text }}>
-                  Follow Me
-                </h4>
-                <div className="flex gap-4">
-                  {socialLinks.map((social, index) => (
-                    <motion.a
-                      key={index}
-                      href={social.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={social.label}
-                      className="w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300"
-                      style={{
-                        backgroundColor: theme.colors.surface,
-                        color: theme.colors.text,
-                        border: `1px solid ${theme.colors.primary}20`
-                      }}
-                      whileHover={{ 
-                        scale: 1.1,
-                        backgroundColor: theme.colors.primary,
-                        color: theme.colors.background
-                      }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      {social.icon}
-                    </motion.a>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Contact Form */}
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-          >
-            {submitted ? (
-              <motion.div
-                className="text-center py-12 px-8 rounded-xl"
-                style={{ backgroundColor: theme.colors.surface }}
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.5 }}
-              >
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center"
-                     style={{ backgroundColor: `${theme.colors.primary}20` }}>
-                  <FaEnvelope size={24} style={{ color: theme.colors.primary }} />
-                </div>
-                <h3 className="text-xl font-bold mb-2" style={{ color: theme.colors.text }}>
-                  Message Sent!
-                </h3>
-                <p style={{ color: theme.colors.textSecondary }}>
-                  Thank you for reaching out. I'll get back to you soon!
-                </p>
-              </motion.div>
-            ) : (
-              <form 
-                onSubmit={handleSubmit} 
-                className="space-y-6 p-8 rounded-xl"
-                style={{ backgroundColor: theme.colors.surface }}
-              >
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <label htmlFor="name" className="block text-sm font-medium mb-2"
-                           style={{ color: theme.colors.text }}>
-                      Name *
-                    </label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      placeholder="Your Name"
-                      className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 transition-all duration-300"
-                      style={{
-                        backgroundColor: theme.colors.background,
-                        color: theme.colors.text,
-                        borderColor: `${theme.colors.primary}40`,
-                        '--tw-ring-color': theme.colors.primary
-                      }}
-                      required
-                    />
-                  </div>
-                  
-                  <div>
-                    <label htmlFor="email" className="block text-sm font-medium mb-2"
-                           style={{ color: theme.colors.text }}>
-                      Email *
-                    </label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      placeholder="your.email@example.com"
-                      className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 transition-all duration-300"
-                      style={{
-                        backgroundColor: theme.colors.background,
-                        color: theme.colors.text,
-                        borderColor: `${theme.colors.primary}40`,
-                        '--tw-ring-color': theme.colors.primary
-                      }}
-                      required
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <label htmlFor="subject" className="block text-sm font-medium mb-2"
-                         style={{ color: theme.colors.text }}>
-                    Subject
-                  </label>
-                  <input
-                    type="text"
-                    id="subject"
-                    name="subject"
-                    placeholder="Project Discussion"
-                    className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 transition-all duration-300"
-                    style={{
-                      backgroundColor: theme.colors.background,
-                      color: theme.colors.text,
-                      borderColor: `${theme.colors.primary}40`,
-                      '--tw-ring-color': theme.colors.primary
-                    }}
-                  />
-                </div>
-                
-                <div>
-                  <label htmlFor="message" className="block text-sm font-medium mb-2"
-                         style={{ color: theme.colors.text }}>
-                    Message *
-                  </label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    placeholder="Tell me about your project or just say hello..."
-                    rows="6"
-                    className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 transition-all duration-300 resize-none"
-                    style={{
-                      backgroundColor: theme.colors.background,
-                      color: theme.colors.text,
-                      borderColor: `${theme.colors.primary}40`,
-                      '--tw-ring-color': theme.colors.primary
-                    }}
-                    required
-                  ></textarea>
-                </div>
-                
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full px-6 py-3 rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                  style={{
-                    backgroundColor: theme.colors.primary,
-                    color: theme.colors.background
-                  }}
-                  onMouseEnter={(e) => !isLoading && (e.target.style.opacity = '0.9')}
-                  onMouseLeave={(e) => !isLoading && (e.target.style.opacity = '1')}
+          <p className="text-sm muted mb-4">
+            Find me as <strong style={{ color: "var(--signal)" }}>@{portfolioProfile.handle}</strong> on GitHub and
+            LinkedIn.
+          </p>
+          <ul className="grid gap-2 list-none p-0 m-0" data-reveal>
+            {channels.map(({ icon: Icon, label, value, href, external }) => (
+              <li key={label}>
+                <a
+                  href={href}
+                  target={external ? "_blank" : undefined}
+                  rel={external ? "noopener noreferrer me" : undefined}
+                  className="panel flex items-center gap-4 px-4 py-3 transition-colors hover:border-[var(--signal)]"
                 >
-                  {isLoading ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin"
-                           style={{ borderColor: theme.colors.background }}></div>
-                      Sending...
-                    </>
-                  ) : (
-                    <>
-                      <FaEnvelope size={16} />
-                      Send Message
-                    </>
-                  )}
-                </button>
-              </form>
-            )}
-          </motion.div>
+                  <Icon aria-hidden="true" style={{ color: "var(--signal)" }} />
+                  <span className="mono text-xs faint w-20 shrink-0 uppercase">{label}</span>
+                  <span className="font-medium truncate">{value}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+
+          <button type="button" className="btn btn-ghost btn-sm mt-4" onClick={copyEmail}>
+            {copied ? <FaCheck aria-hidden="true" /> : <FaCopy aria-hidden="true" />}
+            {copied ? "Email copied" : "Copy email address"}
+          </button>
+          <span className="sr-only" role="status">
+            {copied ? "Email address copied to clipboard" : ""}
+          </span>
+        </div>
+
+        <div className="panel p-6 md:p-8" data-reveal>
+          {status === "sent" ? (
+            <div role="status" className="py-8">
+              <h3 className="text-2xl font-bold m-0 mb-2">Message sent</h3>
+              <p className="muted m-0">Thank you. I&apos;ll reply to the email address you used.</p>
+              <button type="button" className="btn btn-ghost mt-6" onClick={() => setStatus("idle")}>
+                Send another message
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="grid gap-5">
+              <h3 className="text-xl font-bold m-0">Send a message</h3>
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className="field">
+                  <label htmlFor="contact-name">Name</label>
+                  <input id="contact-name" name="name" type="text" autoComplete="name" required />
+                </div>
+                <div className="field">
+                  <label htmlFor="contact-email">Email</label>
+                  <input id="contact-email" name="email" type="email" autoComplete="email" required />
+                </div>
+              </div>
+              <div className="field">
+                <label htmlFor="contact-subject">
+                  Subject <span className="faint font-normal">(optional)</span>
+                </label>
+                <input id="contact-subject" name="subject" type="text" placeholder="Project, role, or collaboration" />
+              </div>
+              <div className="field">
+                <label htmlFor="contact-message">Message</label>
+                <textarea
+                  id="contact-message"
+                  name="message"
+                  rows="5"
+                  required
+                  placeholder="What are you working on?"
+                />
+              </div>
+              {status === "error" && (
+                <p role="alert" className="m-0" style={{ color: "var(--coral)" }}>
+                  The message didn&apos;t send. Please email me directly at{" "}
+                  <a className="underline" href={`mailto:${portfolioProfile.email}`}>
+                    {portfolioProfile.email}
+                  </a>
+                  .
+                </p>
+              )}
+              <button className="btn btn-primary w-full" type="submit" disabled={status === "sending"}>
+                {status === "sending" ? "Sending…" : "Send message"}
+              </button>
+            </form>
+          )}
         </div>
       </div>
-    </motion.section>
+    </section>
   );
 };
 

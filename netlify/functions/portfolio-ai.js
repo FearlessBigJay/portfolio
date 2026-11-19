@@ -11,6 +11,7 @@ Your goals:
 
 Portfolio facts:
 Name: ${portfolioProfile.name}
+Brand name: ${portfolioProfile.brand} (handle: ${portfolioProfile.handle}). People may refer to him as BigJay or FearlessBigJay.
 Role: ${portfolioProfile.role}
 Location: ${portfolioProfile.location}
 Focus: ${portfolioProfile.focus}
@@ -20,16 +21,23 @@ Experience: ${portfolioProfile.experience}
 Education: ${portfolioProfile.education}
 Skills: ${portfolioProfile.skills}
 Certifications: ${portfolioProfile.certifications}
-Metrics: ${portfolioProfile.metrics}
 Work style: ${portfolioProfile.workStyle}
+Do not invent client counts, user counts, revenue, satisfaction rates, or project totals. If a number is not in the facts above, say it is not listed.
 Contact email: ${portfolioProfile.email}
 Contact phone: ${portfolioProfile.phone}
 GitHub: ${portfolioProfile.links.github}
 LinkedIn: ${portfolioProfile.links.linkedin}
 WhatsApp: ${portfolioProfile.links.whatsapp}
 
-Featured projects:
-${portfolioProjects.map((project) => `- ${project.name}: ${project.summary} Live: ${project.url} Repo: ${project.repo}`).join("\n")}`;
+Resume: ${portfolioProfile.site}${portfolioProfile.resume}
+
+Projects (in order of priority; the first three are the featured selected work):
+${portfolioProjects
+  .map(
+    (project) =>
+      `- ${project.name}${project.featured ? " [featured]" : ""}: ${project.summary} Stack: ${project.tech}. Live: ${project.url || "no public demo"}. Repo: ${project.repo || "not public"}.`
+  )
+  .join("\n")}`;
 
 const json = (statusCode, payload) => ({
   statusCode,

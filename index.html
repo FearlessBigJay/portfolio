@@ -1,93 +1,57 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="author" content="Jah'swill Uchechi Emmanuel" />
-    <meta name="theme-color" content="#0b1020" />
-    <link rel="canonical" href="https://jahswill.tech" />
+    <!-- Page-specific title, description, canonical, Open Graph, Twitter and JSON-LD
+         are injected here at build time by scripts/prerender.js (see src/seo.js). -->
+    <!--app-head-->
+    <meta name="author" content="BigJay (Jah'swill Uchechi Emmanuel)" />
+    <meta name="application-name" content="BigJay" />
+    <meta name="apple-mobile-web-app-title" content="BigJay" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="theme-color" content="#0a0a0c" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f7f4ec" media="(prefers-color-scheme: light)" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="me" href="https://github.com/FearlessBigJay" />
+    <link rel="me" href="https://linkedin.com/in/fearlessbigjay" />
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
 
-    <!-- Title -->
-    <title>Jah'swill Uchechi Emmanuel | Full-Stack Software Engineer</title>
-
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="/AboutImg.jpg" alt="Jahswill Logo" />
-
-    <!-- Meta Description -->
-    <meta
-      name="description"
-      content="Portfolio of Jah'swill Uchechi Emmanuel, a full-stack software engineer building elegant web products, AI-powered apps, and modern user experiences with React, Node.js, and Tailwind CSS."
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500&family=Outfit:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap"
     />
 
-    <!-- Keywords -->
-    <meta
-      name="keywords"
-      content="Full-Stack Software Engineer, React Developer, Node.js, Tailwind CSS, UI/UX, Portfolio, Jah'swill, Jah'swill Emmanuel, Jah'swill Uchechi Emmanuel, AI Apps"
-    />
-
-    <!-- Robots -->
-    <meta name="robots" content="index, follow" />
-
-    <!-- Open Graph Tags (for Facebook, LinkedIn) -->
-    <meta property="og:site_name" content="Jah'swill Uchechi Emmanuel Portfolio" />
-    <meta property="og:title" content="Jah'swill Uchechi Emmanuel | Full-Stack Software Engineer" />
-    <meta
-      property="og:description"
-      content="A polished portfolio featuring full-stack work, AI-powered products, and modern frontend engineering."
-    />
-    <meta property="og:image" content="/HeroImg.png" />
-    <meta property="og:image:alt" content="Portrait and portfolio preview of Jah'swill Uchechi Emmanuel" />
-    <meta property="og:url" content="https://jahswill.tech" />
-    <meta property="og:type" content="website" />
-    <meta property="og:locale" content="en_US" />
-
-    <!-- Twitter Card Tags -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@jayzwillz" />
-    <meta name="twitter:creator" content="@jayzwillz" />
-    <meta name="twitter:title" content="Jah'swill Uchechi Emmanuel | Full-Stack Software Engineer" />
-    <meta
-      name="twitter:description"
-      content="Full-stack software engineer building AI-powered apps, polished interfaces, and practical digital products."
-    />
-    <meta name="twitter:image" content="/HeroImg.png" />
-    <meta name="twitter:image:alt" content="Portfolio preview of Jah'swill Uchechi Emmanuel" />
-
-    <!-- Structured Data (Schema) -->
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "Person",
-        "name": "Jah'swill Uchechi Emmanuel",
-        "jobTitle": "Full-Stack Software Engineer",
-        "url": "https://jahswill.tech",
-        "image": "https://jahswill.tech/HeroImg.png",
-        "description": "Full-stack software engineer building AI-powered web apps and modern digital products.",
-        "sameAs": [
-          "https://github.com/Jayzwillz",
-          "https://www.linkedin.com/in/jayzwillz/"
-        ]
-      }
-    </script>
-
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        "name": "Jah'swill Uchechi Emmanuel Portfolio",
-        "url": "https://jahswill.tech",
-        "potentialAction": {
-          "@type": "SearchAction",
-          "target": "https://jahswill.tech/#projects",
-          "query-input": "required name=search_term_string"
-        }
-      }
+    <!-- Apply saved display settings before first paint to avoid a flash. -->
+    <script>
+      try {
+        var d = document.documentElement;
+        var get = function (k) {
+          try { return localStorage.getItem("portfolio-" + k); } catch (e) { return null; }
+        };
+        var t = get("theme");
+        if (t === "system") t = matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+        if (t === "light" || t === "dark") d.setAttribute("data-theme", t);
+        var s = get("textSize");
+        if (s) d.setAttribute("data-text", s);
+        if (get("highContrast") === "true") d.setAttribute("data-contrast", "high");
+        if (get("underlineLinks") === "true") d.classList.add("underline-links");
+        if (get("readableFont") === "true") d.classList.add("readable-font");
+        var reduce = get("reducedMotion") === "true" || matchMedia("(prefers-reduced-motion: reduce)").matches;
+        d.classList.add(reduce ? "reduced-motion" : "motion-ok");
+      } catch (e) {}
     </script>
   </head>
 
   <body>
-    <div id="root"></div>
+    <div id="root"><!--app-html--></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

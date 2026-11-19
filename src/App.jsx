@@ -1,57 +1,46 @@
-import React from "react";
+import { MotionConfig } from "framer-motion";
 import { ThemeProvider, useTheme } from "./context/ThemeContext";
+import { useReveal, useSpotlight } from "./hooks/useSiteMotion";
+import { resolveRoute } from "./routes";
 import Navbar from "./components/Navbar";
-import Hero from "./components/Hero";
-import About from "./components/About";
-import Services from "./components/Services";
-import Skills from "./components/Skills"
-import Projects from "./components/Projects";
-import Resume from "./components/Resume";
-import Testimonials from "./components/Testimonial";
-import Contact from "./components/Contact";
 import Footer from "./components/Footer";
-import ScrollToTop from "./components/ScrollToTop";
-import ThemeControlPanel from "./components/ThemeControlPanel";
-import CursorTrail from "./components/CursorTrail";
+import SignalGuide from "./components/SignalGuide";
 import PortfolioAI from "./components/PortfolioAI";
+import SettingsPanel from "./components/SettingsPanel";
+import HomePage from "./pages/HomePage";
+import ProjectPage from "./pages/ProjectPage";
+import NotFoundPage from "./pages/NotFoundPage";
 
-function AppContent() {
-  const { theme } = useTheme();
-  
+const Site = ({ route }) => {
+  const { reducedMotion } = useTheme();
+  useReveal();
+  useSpotlight();
+  const onHome = route.type === "home";
+
   return (
-    <div 
-      className="min-h-screen transition-colors duration-300"
-      style={{
-        backgroundColor: theme.colors.background,
-        color: theme.colors.text
-      }}
-    >
-      <CursorTrail />
-      <Navbar />
-      <main className="pt-24 overflow-x-hidden">
-        <Hero />
-        <About />
-        <Services />
-        <Skills />
-        <Projects />
-        <Resume />
-        <Testimonials />
-        <Contact />
-        <Footer />
+    <MotionConfig reducedMotion={reducedMotion ? "always" : "never"}>
+      <a className="skip-link sr-only-focusable" href="#main">
+        Skip to content
+      </a>
+      <Navbar page={route.type} />
+      <main id="main" tabIndex={-1} className="outline-none">
+        {onHome && <HomePage />}
+        {route.type === "project" && <ProjectPage project={route.project} />}
+        {route.type === "notfound" && <NotFoundPage />}
       </main>
-      <ScrollToTop />
+      <Footer />
+      {onHome && <SignalGuide />}
       <PortfolioAI />
-      <ThemeControlPanel />
-    </div>
+      <SettingsPanel />
+    </MotionConfig>
   );
-}
+};
 
-function App() {
-  return (
-    <ThemeProvider>
-      <AppContent />
-    </ThemeProvider>
-  );
-}
+/** `url` is the page path: window.location.pathname in the browser, the route being pre-rendered at build time. */
+const App = ({ url = "/" }) => (
+  <ThemeProvider>
+    <Site route={resolveRoute(url)} />
+  </ThemeProvider>
+);
 
 export default App;

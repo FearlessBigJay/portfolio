@@ -1,149 +1,112 @@
-import React from "react";
-import { FaGithub, FaLinkedin, FaWhatsapp, FaEnvelope, FaHeart } from "react-icons/fa";
-import { motion } from "framer-motion";
-import { useTheme } from "../context/ThemeContext";
+import { FaGithub, FaLinkedin, FaWhatsapp, FaEnvelope } from "react-icons/fa";
+import { portfolioProfile } from "../data/portfolioProfile";
+import { sections } from "../hooks/useSiteMotion";
+import { projectPath, projects } from "../data/projects";
+import LocalTime from "./LocalTime";
+
+const socials = [
+  { icon: FaGithub, href: portfolioProfile.links.github, label: "GitHub" },
+  { icon: FaLinkedin, href: portfolioProfile.links.linkedin, label: "LinkedIn" },
+  { icon: FaWhatsapp, href: portfolioProfile.links.whatsapp, label: "WhatsApp" },
+  { icon: FaEnvelope, href: `mailto:${portfolioProfile.email}`, label: "Email" },
+];
 
 const Footer = () => {
-  const { theme } = useTheme();
-  const currentYear = new Date().getFullYear();
-  
-  const quickLinks = [
-    { name: "About", href: "#about" },
-    { name: "Services", href: "#services" },
-    { name: "Projects", href: "#projects" },
-    { name: "Contact", href: "#contact" }
-  ];
-
-  const socialLinks = [
-    { icon: <FaGithub size={20} />, href: "https://github.com/jayzwillz", label: "GitHub" },
-    { icon: <FaLinkedin size={20} />, href: "https://linkedin.com/in/jayzwillz", label: "LinkedIn" },
-    { icon: <FaWhatsapp size={20} />, href: "https://wa.me/2349016510703", label: "WhatsApp" },
-    { icon: <FaEnvelope size={20} />, href: "mailto:jahswill4jahs@gmail.com", label: "Email" }
-  ];
+  const year = new Date().getFullYear();
 
   return (
-    <motion.footer
-      className="py-14 relative overflow-hidden transition-colors duration-300"
-      style={{
-        backgroundColor: theme.colors.background,
-        color: theme.colors.textSecondary
-      }}
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      viewport={{ once: true }}
-    >
-      {/* Background decoration */}
-      <div 
-        className="absolute top-0 left-1/2 transform -translate-x-1/2 w-full h-px opacity-30" 
-        style={{ 
-          background: `linear-gradient(to right, transparent, ${theme.colors.primary}, transparent)` 
-        }} 
-      />
-      
-      <div className="max-w-7xl mx-auto px-6 md:px-12">
-        <div className="grid md:grid-cols-3 gap-8 mb-8">
-          {/* About Section */}
-          <div className="text-center md:text-left">
-            <h3 className="text-xl font-black mb-4 tracking-tight" style={{ color: theme.colors.primary }}>
-              Jah'swill Uchechi Emmanuel
-            </h3>
-            <p className="text-sm leading-relaxed mb-4">
-              FullStack Software Engineer passionate about building scalable web applications 
-              and creating exceptional digital experiences. Let's turn your ideas into reality.
-            </p>
-            <div className="flex justify-center md:justify-start gap-4">
-              {socialLinks.map((social, index) => (
-                <a
-                  key={index}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={social.label}
-                  className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110"
-                  style={{
-                    backgroundColor: `${theme.colors.surface}CA`,
-                    color: theme.colors.text,
-                    border: `1px solid ${theme.colors.primary}66`
-                  }}
-                >
-                  {social.icon}
-                </a>
-              ))}
-            </div>
-          </div>
+    <footer className="border-t pt-12 pb-28" style={{ borderColor: "var(--line)" }}>
+      <div className="wrap grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_0.8fr_1fr_1fr]">
+        <div>
+          <p className="brand m-0">
+            <span className="brand-mark" aria-hidden="true">
+              BJ
+            </span>
+            <span className="brand-word">
+              Big<span>Jay</span>
+            </span>
+          </p>
+          <p className="mt-3 mb-0 text-sm max-w-sm">
+            {portfolioProfile.name} <span className="faint">· @{portfolioProfile.handle}</span>
+          </p>
+          <p className="mt-2 mb-0 text-sm muted max-w-sm">{portfolioProfile.title}</p>
+        </div>
 
-          {/* Quick Links */}
-          <div className="text-center">
-            <h4 className="text-lg font-semibold mb-4" style={{ color: theme.colors.text }}>Quick Links</h4>
-            <ul className="space-y-2">
-              {quickLinks.map((link, index) => (
-                <li key={index}>
-                  <a
-                    href={link.href}
-                    className="text-sm transition-colors duration-300 font-medium"
-                    style={{ 
-                      color: theme.colors.textSecondary,
-                      ':hover': { color: theme.colors.primary }
-                    }}
-                    onMouseEnter={(e) => e.target.style.color = theme.colors.primary}
-                    onMouseLeave={(e) => e.target.style.color = theme.colors.textSecondary}
-                  >
-                    {link.name}
+        <nav aria-labelledby="footer-site">
+          <p id="footer-site" className="mono text-xs faint uppercase tracking-wider m-0 mb-3">
+            Site
+          </p>
+          <ul className="grid gap-2 list-none p-0 m-0 text-sm">
+            {sections
+              .filter((s) => s.nav)
+              .map((s) => (
+                <li key={s.id}>
+                  <a className="text-link" href={`/#${s.id}`}>
+                    {s.label}
                   </a>
                 </li>
               ))}
-            </ul>
-          </div>
+            <li>
+              <a className="text-link" href={portfolioProfile.resume} target="_blank" rel="noopener">
+                Resume (PDF)
+              </a>
+            </li>
+          </ul>
+        </nav>
 
-          {/* Contact Info */}
-          <div className="text-center md:text-right">
-            <h4 className="text-lg font-semibold mb-4" style={{ color: theme.colors.text }}>Get In Touch</h4>
-            <div className="space-y-2 text-sm">
-              <p style={{ color: theme.colors.textSecondary }}>Imo State, Nigeria</p>
-              <p>
-                <a 
-                  href="mailto:jahswill4jahs@gmail.com" 
-                  className="transition-colors"
-                  style={{ color: theme.colors.textSecondary }}
-                  onMouseEnter={(e) => e.target.style.color = theme.colors.primary}
-                  onMouseLeave={(e) => e.target.style.color = theme.colors.textSecondary}
-                >
-                  jahswill4jahs@gmail.com
-                </a>
-              </p>
-              <p>
-                <a 
-                  href="https://wa.me/2349016510703" 
-                  className="transition-colors"
-                  style={{ color: theme.colors.textSecondary }}
-                  onMouseEnter={(e) => e.target.style.color = theme.colors.primary}
-                  onMouseLeave={(e) => e.target.style.color = theme.colors.textSecondary}
-                >
-                  +234 901 651 0703
-                </a>
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom Bar */}
-        <div className="pt-8 flex flex-col md:flex-row justify-between items-center gap-4" style={{ borderTop: `1px solid ${theme.colors.surface}` }}>
-          <p className="text-xs text-center md:text-left" style={{ color: theme.colors.textSecondary }}>
-            &copy; {currentYear} Jah'swill Uchechi Emmanuel. All rights reserved.
+        <nav aria-labelledby="footer-cases">
+          <p id="footer-cases" className="mono text-xs faint uppercase tracking-wider m-0 mb-3">
+            Case studies
           </p>
-          
-          <div className="flex items-center gap-2 text-xs" style={{ color: theme.colors.textSecondary }}>
-            <span>Made with</span>
-            <FaHeart className="text-red-500 animate-pulse" size={12} />
-            <span>using React & Tailwind CSS</span>
-          </div>
+          <ul className="grid gap-2 list-none p-0 m-0 text-sm">
+            {projects.map((project) => (
+              <li key={project.slug}>
+                <a className="text-link" href={projectPath(project)}>
+                  {project.title}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        <div className="grid gap-3 content-start">
+          <p className="status m-0">
+            <span className="status-dot" aria-hidden="true" />
+            {portfolioProfile.availability}
+          </p>
+          <p className="status m-0">
+            {portfolioProfile.city} · <LocalTime />
+          </p>
+          <ul className="flex gap-2 list-none p-0 m-0 mt-2">
+            {socials.map(({ icon: Icon, href, label }) => {
+              const external = !href.startsWith("mailto:");
+              return (
+                <li key={label}>
+                  <a
+                    className="icon-btn"
+                    href={href}
+                    aria-label={label}
+                    target={external ? "_blank" : undefined}
+                    rel={external ? "noopener noreferrer me" : undefined}
+                  >
+                    <Icon aria-hidden="true" />
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
         </div>
       </div>
-    </motion.footer>
+      <div className="wrap mt-14">
+        <p className="footer-wordmark" aria-hidden="true">
+          BigJay
+        </p>
+      </div>
+      <p className="wrap mt-6 mb-0 text-xs faint">
+        © {year} BigJay ({portfolioProfile.name}). Built with React, Vite, and Tailwind CSS.
+      </p>
+    </footer>
   );
 };
 
 export default Footer;
-
-

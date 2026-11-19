@@ -1,92 +1,73 @@
-import React from "react";
-import { motion } from "framer-motion";
-import aboutImg from "/AboutImg.jpg";
-import { useTheme } from "../context/ThemeContext";
+import SectionHeading from "./SectionHeading";
+import { education, experience, portfolioProfile } from "../data/portfolioProfile";
+
+const facts = [
+  { label: "Known as", value: `${portfolioProfile.brand} · @${portfolioProfile.handle}` },
+  { label: "Based in", value: portfolioProfile.location },
+  { label: "Now", value: `${experience[0].title} at ${experience[0].company.split(" (")[0]}` },
+  { label: "Studied", value: `Software Engineering, ${education.school} (2025)` },
+  { label: "Focus", value: "React, Node.js, and AI-enabled web products" },
+  { label: "Open to", value: "Remote and contract work" },
+];
 
 const About = () => {
-  const { theme } = useTheme();
-  
   return (
-    <article 
-      id="about" 
-      className="py-24 relative overflow-hidden transition-colors duration-300"
-      style={{
-        backgroundColor: theme.colors.surface,
-        color: theme.colors.text
-      }}
-    >
-      <div
-        className="absolute -top-20 left-[-10%] w-[300px] h-[300px] opacity-20 rounded-full blur-[120px]"
-        style={{ backgroundColor: theme.colors.secondary }}
-      />
-      <div
-        className="absolute bottom-[-20%] right-[-10%] w-[400px] h-[400px] opacity-20 rounded-full blur-[180px]"
-        style={{ backgroundColor: theme.colors.accent }}
-      />
+    <section id="about" className="section" aria-labelledby="about-heading">
+      <div className="wrap grid grid-cols-1 lg:grid-cols-[0.8fr_1.2fr] gap-12 lg:gap-16 items-start">
+        <figure className="m-0 max-w-sm mx-auto lg:mx-0 w-full" data-reveal>
+          <img
+            src="/AboutImg.jpg"
+            width="460"
+            height="542"
+            loading="lazy"
+            decoding="async"
+            alt="Jah'swill in a cap and denim jacket against violet stage lights"
+            className="w-full rounded-[1.5rem] object-cover border"
+            style={{ borderColor: "var(--line-strong)", aspectRatio: "460 / 542" }}
+          />
+          <figcaption className="status mt-3">
+            <span aria-hidden="true">↳</span> {portfolioProfile.city}
+          </figcaption>
+        </figure>
 
-      <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
-        <motion.h2
-          className="text-3xl sm:text-4xl font-extrabold text-center mb-12"
-          style={{ color: theme.colors.primary }}
-          initial={{ opacity: 0, y: -40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
-        >
-          About Me
-        </motion.h2>
+        <div>
+          <SectionHeading
+            id="about-heading"
+            index="02"
+            eyebrow="About BigJay"
+            title="Curious builder, practical engineer."
+            className="!mb-8"
+          />
 
-        <div className="flex flex-col md:flex-row-reverse items-center justify-between gap-12">
-          <motion.div
-            className="flex-1 space-y-6"
-            initial={{ opacity: 0, x: 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 1.2 }}
-          >
-            <p className="text-lg leading-relaxed" style={{ color: theme.colors.textSecondary }}>
-              I'm a FullStack Software Engineer with a passion for building scalable web applications from frontend to backend. 
-              My expertise spans across modern JavaScript frameworks, server-side technologies, databases, and cloud platforms 
-              to create complete digital solutions that solve real-world problems.
+          <div className="grid gap-5 text-[1.075rem] muted max-w-2xl" data-reveal>
+            <p className="m-0">
+              I&apos;m Jah&apos;swill, though most people online know me as{" "}
+              <strong style={{ color: "var(--text)" }}>BigJay</strong>. I like the stretch between an idea and something
+              a person can actually click. Most of my work sits in React on the front and Node.js behind it, with AI
+              used where it makes the product more useful, not as decoration.
             </p>
-            <p className="text-lg leading-relaxed" style={{ color: theme.colors.textSecondary }}>
-              My technical stack includes React, Node.js, Express, MongoDB, PostgreSQL, and cloud services like AWS. 
-              I specialize in building RESTful APIs, implementing secure authentication systems, and creating responsive 
-              frontends with seamless user experiences using modern tools like TypeScript and Tailwind CSS.
+            <p className="m-0">
+              Before engineering, I spent close to two years designing flyers, banners, and ID cards and helping
+              customers at a busy cyber café. I still care about the same things: clear screens, sensible defaults, and
+              products people can use without a manual. I completed AltSchool Africa&apos;s software engineering diploma
+              in 2025 and now work as a full-stack engineer.
             </p>
-            <p className="text-lg leading-relaxed" style={{ color: theme.colors.textSecondary }}>
-              Whether I'm architecting microservices, optimizing database queries, or crafting intuitive user interfaces, 
-              I approach every project with a focus on clean code, scalability, and performance. I'm always excited to 
-              tackle new challenges and stay updated with the latest technologies.
+            <p className="m-0" style={{ color: "var(--text)" }}>
+              I&apos;m happiest on ambitious, practical problems, and I&apos;m always up for a conversation about one.
             </p>
-          </motion.div>
+          </div>
 
-          <motion.div
-            className="flex-1 flex justify-center md:justify-start"
-            initial={{ opacity: 0, scale: 0.85 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1.3, delay: 0.2 }}
-          >
-            <div
-              className="relative w-72 h-96 md:w-80 md:h-[28rem] rounded-2xl overflow-hidden shadow-2xl border-4"
-              style={{
-                borderColor: theme.colors.primary,
-                background: `linear-gradient(145deg, ${theme.colors.surface}, ${theme.colors.background})`,
-              }}
-            >
-              <img
-                src={aboutImg}
-                alt="Portrait of Jah'swill Uchechi Emmanuel, FullStack Software Engineer"
-                className="object-cover object-center w-full h-full hover:scale-105 transition-transform duration-500"
-              />
-              {/* Decorative elements */}
-              <div className="absolute -top-4 -right-4 w-8 h-8 rounded-full opacity-80" 
-                   style={{ backgroundColor: theme.colors.primary }}></div>
-              <div className="absolute -bottom-4 -left-4 w-6 h-6 rounded-full opacity-80" 
-                   style={{ backgroundColor: theme.colors.secondary }}></div>
-            </div>
-          </motion.div>
+          <dl className="fact-list mt-10" data-reveal>
+            {facts.map((fact) => (
+              <div key={fact.label}>
+                <dt>{fact.label}</dt>
+                <dd>{fact.value}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
       </div>
-    </article>
+    </section>
   );
 };
 
